@@ -62,13 +62,13 @@ module NinjaRMM
       @client.get("v2/device/#{id}/scripting/options").body
     end
 
-    def device_script_run(device_id:, uid:, id:, parameters:, run_as:)
+    def device_script_run(device_id:, type:, uid:, id:, parameters:, run_as:)
       data = {
-        type: 'ACTION',
+        type: type || (uid ? 'ACTION' : 'SCRIPT'),
         uid: uid,
         id: id,
         parameters: parameters,
-        runAs: run_as || 'system'
+        runAs: run_as
       }
       @client.post("v2/device/#{device_id}/script/run", data).body
     end

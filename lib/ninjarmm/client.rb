@@ -23,11 +23,19 @@ module NinjaRMM
     end
 
     def customers
-      @client.get('v1/customers').body
+      organizations
+    end
+
+    def organizations
+      @client.get('v2/organizations').body
     end
 
     def customer(id:)
-      @client.get("v1/customers/#{id}").body
+      organizations(id: id)
+    end
+
+    def organizations(id:)
+      @client.get("v2/organizations /#{id}").body
     end
 
     def devices
@@ -48,6 +56,20 @@ module NinjaRMM
 
     def reset_alert(id:)
       @client.delete("v1/alerts/#{id}").body
+    end
+
+    def device_scripts(id:)
+      @client.get("v2/device/#{id}/scripting/options").body
+    end
+
+    def device_script_run(id:, uid:, parameters:, run_as:)
+      data = {
+        type: 'ACTION',
+        uid: uid,
+        parameters: parameters,
+        runAs: run_as || 'system'
+      }
+      @client.post("v2/device/#{id}/script/run", data).body
     end
   end
 end

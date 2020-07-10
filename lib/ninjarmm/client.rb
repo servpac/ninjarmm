@@ -34,7 +34,7 @@ module NinjaRMM
       organizations(id: id)
     end
 
-    def organizations(id:)
+    def organization(id:)
       @client.get("v2/organizations /#{id}").body
     end
 

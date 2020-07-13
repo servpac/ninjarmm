@@ -64,7 +64,7 @@ module NinjaRMM
 
     def device_script_run(device_id:, type: nil, uid:, id:, parameters: nil, run_as:)
       data = {
-        type: type || (uid ? 'ACTION' : 'SCRIPT'),
+        type: type || (uid.blank? ? 'SCRIPT' : 'ACTION'),
         uid: uid,
         id: id,
         parameters: parameters,

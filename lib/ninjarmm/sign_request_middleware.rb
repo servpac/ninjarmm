@@ -8,9 +8,13 @@ module NinjaRMM
       http_method        = env[:method].to_s.upcase
       time_stamp         = Time.now.httpdate
       canonical_resource = env[:url].to_s.delete_prefix(Client::BASE_URL)
+      if env[:body]
+        content_md5 = Digest::MD5.hexdigest(env[:body])
+        content_type = env[:request_headers]['Content-Type']
+      end
 
       # define our required string format
-      string = "#{http_method}\n\n\n#{time_stamp}\n#{canonical_resource}"
+      string = "#{http_method}\n#{content_md5}\n#{content_type}\n#{time_stamp}\n#{canonical_resource}"
 
       # process string
       string_base64 = Base64.strict_encode64(string)
@@ -22,6 +26,7 @@ module NinjaRMM
         Authorization: "NJ #{access_id}:#{hash_base64}",
         Date:          time_stamp.to_s
       )
+      env[:request_headers]['Content-MD5'] = content_md5 if content_md5
 
       app.call env
     end

@@ -51,15 +51,11 @@ module NinjaRMM
     end
 
     def alerts
-      @client.get('v1/alerts').body
+      @client.get('v2/alerts').body
     end
 
-    def alerts_since(id:)
-      @client.get("v1/alerts/since/#{id}").body
-    end
-
-    def reset_alert(id:)
-      @client.delete("v1/alerts/#{id}").body
+    def reset_alert(uid:)
+      @client.delete("v2/alerts/#{uid}").body
     end
 
     def device_scripts(id:)
@@ -78,7 +74,7 @@ module NinjaRMM
     end
 
     def roles
-      @client.get("/v2/roles").body
+      @client.get("v2/roles").body
     end
   end
 end

@@ -54,6 +54,10 @@ module NinjaRMM
       @client.delete("v2/alerts/#{uid}").body
     end
 
+    def dashboard_url(id:)
+      @client.get("v2/devices/#{id}/dashboard-url").body
+    end
+
     def device_scripts(id:)
       @client.get("v2/device/#{id}/scripting/options").body
     end

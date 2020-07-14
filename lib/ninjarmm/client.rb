@@ -39,11 +39,15 @@ module NinjaRMM
     end
 
     def devices
-      @client.get('v1/devices').body
+      @client.get('v2/devices').body
+    end
+
+    def devices_detailed
+      @client.get('v2/devices-detailed').body
     end
 
     def device(id:)
-      @client.get("v1/devices/#{id}").body
+      @client.get("v2/devices/#{id}").body
     end
 
     def alerts
@@ -71,6 +75,10 @@ module NinjaRMM
         runAs: run_as
       }
       @client.post("v2/device/#{device_id}/script/run", data).body
+    end
+
+    def roles
+      @client.get("/v2/roles").body
     end
   end
 end

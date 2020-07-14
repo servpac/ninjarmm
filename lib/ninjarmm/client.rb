@@ -55,7 +55,7 @@ module NinjaRMM
     end
 
     def dashboard_url(id:)
-      @client.get("v2/devices/#{id}/dashboard-url").body
+      @client.get("v2/device/#{id}/dashboard-url").body
     end
 
     def device_scripts(id:)

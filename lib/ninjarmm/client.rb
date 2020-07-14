@@ -18,10 +18,6 @@ module NinjaRMM
       end
     end
 
-    def ping
-      @client.get('v1/ping').body
-    end
-
     def customers
       organizations
     end

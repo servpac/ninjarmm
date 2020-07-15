@@ -8,14 +8,26 @@ module NinjaRMM
     BASE_URL = 'https://api.ninjarmm.com'.freeze
 
 
-    def initialize(access_id: '', secret_key: '',
+    def initialize(access_id: '', secret_key: '', access_token: nil,
                    adapter: Faraday.default_adapter)
-      @client = Faraday.new(BASE_URL) do |conn|
-        conn.request :json
-        conn.response :json, content_type: /\bjson$/
-        conn.use SignRequestMiddleware, access_id, secret_key
-        conn.adapter adapter
-      end
+      @client =
+        if access_token
+          faraday_settings = lambda do |conn|
+            conn.request :json
+            #conn.response :json, content_type: /\bjson$/
+            conn.adapter adapter
+          end
+          client = OAuth2::Client.new('', '', site: 'https://app.ninjarmm.com', connection_build: faraday_settings, raise_errors: false)
+          @using_oauth = true
+          OAuth2::AccessToken.new(client, access_token, expires_in: 1.hour)
+        else
+          Faraday.new(BASE_URL) do |conn|
+            conn.request :json
+            conn.response :json, content_type: /\bjson$/
+            conn.use SignRequestMiddleware, access_id, secret_key
+            conn.adapter adapter
+          end
+        end
     end
 
     def customers
@@ -23,7 +35,7 @@ module NinjaRMM
     end
 
     def organizations
-      @client.get('v2/organizations').body
+      get('v2/organizations')
     end
 
     def customer(id:)
@@ -31,35 +43,35 @@ module NinjaRMM
     end
 
     def organization(id:)
-      @client.get("v2/organizations /#{id}").body
+      get("v2/organizations /#{id}")
     end
 
     def devices
-      @client.get('v2/devices').body
+      get('v2/devices')
     end
 
     def devices_detailed
-      @client.get('v2/devices-detailed').body
+      get('v2/devices-detailed')
     end
 
     def device(id:)
-      @client.get("v2/devices/#{id}").body
+      get("v2/devices/#{id}")
     end
 
     def alerts
-      @client.get('v2/alerts').body
+      get('v2/alerts')
     end
 
     def reset_alert(uid:)
-      @client.delete("v2/alerts/#{uid}").body
+      delete("v2/alerts/#{uid}")
     end
 
     def dashboard_url(id:)
-      @client.get("v2/device/#{id}/dashboard-url").body
+      get("v2/device/#{id}/dashboard-url")
     end
 
     def device_scripts(id:)
-      @client.get("v2/device/#{id}/scripting/options").body
+      get("v2/device/#{id}/scripting/options")
     end
 
     def device_script_run(device_id:, type: nil, uid:, id:, parameters: nil, run_as:)
@@ -70,11 +82,29 @@ module NinjaRMM
         parameters: parameters,
         runAs: run_as
       }
-      @client.post("v2/device/#{device_id}/script/run", data).body
+      post("v2/device/#{device_id}/script/run", data)
     end
 
     def roles
-      @client.get("v2/roles").body
+      get("v2/roles")
+    end
+
+    protected
+
+    %w[get delete].each do |method|
+      class_eval <<-RUBY, __FILE__, __LINE__ + 1
+        def #{method}(url)
+          @using_oauth ? @client.#{method}(url).parsed : @client.#{method}(url).body
+        end
+      RUBY
+    end
+
+    %w[post put patch].each do |method|
+      class_eval <<-RUBY, __FILE__, __LINE__ + 1
+        def #{method}(url, body)
+          @using_oauth ? @client.#{method}(url, body: body).parsed : @client.#{method}(url, body).body
+        end
+      RUBY
     end
   end
 end

@@ -14,7 +14,6 @@ module NinjaRMM
         if access_token
           faraday_settings = lambda do |conn|
             conn.request :json
-            #conn.response :json, content_type: /\bjson$/
             conn.adapter adapter
           end
           client = OAuth2::Client.new('', '', site: 'https://app.ninjarmm.com', connection_build: faraday_settings, raise_errors: false)
@@ -34,8 +33,8 @@ module NinjaRMM
       organizations
     end
 
-    def organizations
-      get('v2/organizations')
+    def organizations(page_size: nil, after: nil)
+      get('v2/organizations', pageSize: page_size, after: after)
     end
 
     def customer(id:)
@@ -43,23 +42,25 @@ module NinjaRMM
     end
 
     def organization(id:)
-      get("v2/organizations /#{id}")
+      get("v2/organizations/#{id}")
     end
 
-    def devices
-      get('v2/devices')
+    def devices(df: nil, page_size: nil, after: nil)
+      get('v2/devices', df: df, pageSize: page_size, after: after)
     end
 
-    def devices_detailed
-      get('v2/devices-detailed')
+    def devices_detailed(df: nil, page_size: nil, after: nil)
+      get('v2/devices-detailed', df: df, pageSize: page_size, after: after)
     end
 
     def device(id:)
       get("v2/devices/#{id}")
     end
 
-    def alerts
-      get('v2/alerts')
+    def alerts(source_type: nil, df: nil, lang: nil, tz: nil)
+      params = {df: df, lang: lang, tz: tz}
+      params[:sourceType] = source_type if source_type
+      get('v2/alerts', params)
     end
 
     def reset_alert(uid:)
@@ -93,8 +94,8 @@ module NinjaRMM
 
     %w[get delete].each do |method|
       class_eval <<-RUBY, __FILE__, __LINE__ + 1
-        def #{method}(url)
-          @using_oauth ? @client.#{method}(url).parsed : @client.#{method}(url).body
+        def #{method}(url, params = nil)
+          @using_oauth ? @client.#{method}(url, params: params).parsed : @client.#{method}(url, params).body
         end
       RUBY
     end

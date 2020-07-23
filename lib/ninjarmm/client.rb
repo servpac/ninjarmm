@@ -95,7 +95,12 @@ module NinjaRMM
     %w[get delete].each do |method|
       class_eval <<-RUBY, __FILE__, __LINE__ + 1
         def #{method}(url, params = nil)
-          @using_oauth ? @client.#{method}(url, params: params).parsed : @client.#{method}(url, params).body
+          if @using_oauth
+            @client.#{method}(url, params: params).parsed
+          else
+            raise ArgumentError, "HMAC authentication doesn't support params" if params.values.any?
+            @client.#{method}(url).body
+          end
         end
       RUBY
     end

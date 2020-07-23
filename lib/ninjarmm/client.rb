@@ -98,7 +98,7 @@ module NinjaRMM
           if @using_oauth
             @client.#{method}(url, params: params).parsed
           else
-            raise ArgumentError, "HMAC authentication doesn't support params" if params.values.any?
+            raise ArgumentError, "HMAC authentication doesn't support params" if params&.values&.any?
             @client.#{method}(url).body
           end
         end

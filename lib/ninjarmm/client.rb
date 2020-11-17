@@ -90,6 +90,10 @@ module NinjaRMM
       get("v2/roles")
     end
 
+    def policies
+      get('v2/policies')
+    end
+
     protected
 
     %w[get delete].each do |method|

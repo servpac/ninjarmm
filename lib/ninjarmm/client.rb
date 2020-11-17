@@ -37,6 +37,10 @@ module NinjaRMM
       get('v2/organizations', pageSize: page_size, after: after)
     end
 
+    def organizations_detailed(page_size: nil, after: nil)
+      get('v2/organizations-detailed', pageSize: page_size, after: after)
+    end
+
     def customer(id:)
       organizations(id: id)
     end

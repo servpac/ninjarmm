@@ -98,6 +98,10 @@ module NinjaRMM
       get('v2/policies')
     end
 
+    def organization_policies(id:, policies:)
+      put("v2/organization/#{id}/policies", policies)
+    end
+
     protected
 
     %w[get delete].each do |method|
